@@ -11,23 +11,13 @@ jobs:
   my_job:
     runs-on: ubuntu-latest
 
-    outputs:
-      first_run: ${{ steps.first_run.outputs.first_run }}
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - name: Check if triggered by self
+        id: check_if_self_triggered
+        run: echo "::set-output name=triggered_by_self::$(test ${{ github.actor }} == 'github-actions[bot]' && echo true || echo false)"
+        shell: bash
 
-      - name: Check if first run
-        id: first_run
-        run: echo "::set-output name=first_run::true"
-        if: steps.my_job.outputs.first_run == ''
-
-      - name: Do something on the first run only
-        if: steps.my_job.outputs.first_run == 'true'
+      - name: My step
+        if: steps.check_if_self_triggered.outputs.triggered_by_self == 'false'
         run: |
-          echo "First test !"
-
-      - name: Do something every time
-        run: |
-          echo "Test"
+          # Perform some action here that should only be done if the workflow is not triggered by itself
