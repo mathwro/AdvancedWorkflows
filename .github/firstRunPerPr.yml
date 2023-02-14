@@ -1,0 +1,29 @@
+name: My Workflow
+
+on:
+  pull_request:
+
+jobs:
+  my_job:
+    runs-on: ubuntu-latest
+
+    outputs:
+      first_run: ${{ steps.first_run.outputs.first_run }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Check if first run
+        id: first_run
+        run: echo "::set-output name=first_run::true"
+        if: steps.my_job.outputs.first_run == ''
+
+      - name: Do something on the first run only
+        if: steps.my_job.outputs.first_run == 'true'
+        run: |
+          echo "First test !"
+
+      - name: Do something every time
+        run: |
+          echo "Test"
